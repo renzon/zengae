@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-def index(_resp):
-    _resp.write('Hello World!')
+def index(_write_tmpl):
+    _write_tmpl('templates/home.html')

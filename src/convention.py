@@ -5,20 +5,20 @@ import sys
 import os
 
 #Put lib on path, once Google App Engine does not allow doing it directly
-sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
+import tmpl
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 import webapp2
 from zen import router
 from zen.router import PathNotFound
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 
-
-
-def _extract_values(handler, param, default_value=""):
+def _extract_values(handler, param, default_value=''):
     values = handler.request.get_all(param)
-    if param.endswith("[]"):
+    if param.endswith('[]'):
         return param[:-2], values if values else []
     else:
         if not values: return param, default_value
@@ -37,23 +37,27 @@ class BaseHandler(webapp2.RequestHandler):
 
     def make_convetion(self):
         kwargs = dict(_extract_values(self, a) for a in self.request.arguments())
-        convention_params = {"_req": self.request,
-                             "_resp": self.response,
-                             "_handler": self,
+
+        def write_tmpl(template_name, values={}):
+            self.response.write(tmpl.render(template_name, values))
+
+        convention_params = {'_req': self.request,
+                             '_resp': self.response,
+                             '_handler': self,
+                             '_write_tmpl': write_tmpl
         }
-        convention_params["_dependencies"] = convention_params
+        convention_params['_dependencies'] = convention_params
         try:
             fcn, params = router.to_handler(self.request.path, convention_params, **kwargs)
             fcn(*params, **kwargs)
 
         except PathNotFound:
             self.response.status_code = 404
-            logging.error("Path not Found: " + self.request.path)
-        except:
+            logging.error('Path not Found: ' + self.request.path)
+        except Exception, e:
             self.response.status_code = 400
-            logging.error((fcn, params, kwargs))
-            logging.exception()
+            logging.exception(e)
 
 
-app = webapp2.WSGIApplication([("/.*", BaseHandler)], debug=False)
+app = webapp2.WSGIApplication([('/.*', BaseHandler)], debug=False)
 

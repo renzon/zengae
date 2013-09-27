@@ -7,15 +7,15 @@
 # Packages
 *.egg
 *.egg-info
-pyenv/dist
 build
-pyenv/eggs
 parts
-pyenv/bin
 var
+.installed.cfg
+pyenv/eggs
+pyenv/dist
+pyenv/bin
 pyenv/sdist
 pyenv/develop-eggs
-.installed.cfg
 pyenv/lib
 pyenv/lib64
 pyenv/local
